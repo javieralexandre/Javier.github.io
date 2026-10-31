@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Papelería Guayaca | Suministros Premium</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f6f6f6',
+                            900: '#111111',
+                            950: '#0a0a0a'
+                        }
+                    },
+                    letterSpacing: {
+                        'widest-xl': '0.25em',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Base Styling */
+        body { -webkit-font-smoothing: antialiased; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #333; }
+        .light ::-webkit-scrollbar-track { background: #f1f1f1; }
+        .light ::-webkit-scrollbar-thumb { background: #ccc; }
+
+        /* Nixon Style Outline Button */
+        .btn-outline {
+            border: 1px solid currentColor;
+            background: transparent;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+        }
+        .dark .btn-outline:hover {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+        html:not(.dark) .btn-outline:hover {
+            background: #000000 !important;
+            color: #ffffff !important;
+        }
+
+        /* Category Scrollbar */
+        .category-scroll-container {
+            user-select: none;
+            -webkit-user-select: none;
+            scrollbar-width: thin;
+        }
+        .category-scroll-container::-webkit-scrollbar {
+            height: 4px;
+        }
+        .category-scroll-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .category-scroll-container::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 2px;
+        }
+
+        /* Carousel Transitions */
+        .carousel-slide {
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+        .carousel-slide.active {
+            opacity: 1;
+            z-index: 10;
+        }
+
+        /* Toast Animation */
+        @keyframes slideInUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes slideOutDown {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(100%); opacity: 0; }
+        }
+        .toast-enter { animation: slideInUp 0.3s forwards; }
+        .toast-leave { animation: slideOutDown 0.3s forwards; }
+    </style>
+</head>
+<body class="bg-brand-50 text-gray-900 dark:bg-brand-950 dark:text-white transition-colors duration-500 min-h-screen flex flex-col font-sans">
+
+    <!-- Header / Navigation -->
+    <header class="fixed w-full top-0 z-50 bg-white/90 dark:bg-black/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-colors duration-500">
+        <div class="max-w-[1400px] mx-auto px-6 h-20 flex justify-between items-center">
+            
+            <!-- Logo -->
+            <a href="#" onclick="switchPage('home'); return false;" class="font-heading font-bold text-xl md:text-2xl tracking-widest uppercase shrink-0">
+                Papelería<span class="font-light">Guayaca</span>
+            </a>
+            
+            <!-- Desktop Menu -->
+            <nav class="hidden md:flex space-x-8 lg:space-x-12">
+                <a href="#" onclick="switchPage('home'); return false;" class="font-heading text-xs tracking-widest-xl uppercase hover:text-gray-500 dark:hover:text-gray-400 transition-colors">Inicio</a>
+                <a href="#" onclick="switchPage('promos'); return false;" class="font-heading text-xs tracking-widest-xl uppercase hover:text-gray-500 dark:hover:text-gray-400 transition-colors">Promos</a>
+                <a href="#" onclick="switchPage('catalogo'); return false;" class="font-heading text-xs tracking-widest-xl uppercase hover:text-gray-500 dark:hover:text-gray-400 transition-colors">Catálogo</a>
+                <a href="#" onclick="switchPage('nosotros'); return false;" class="font-heading text-xs tracking-widest-xl uppercase hover:text-gray-500 dark:hover:text-gray-400 transition-colors">Nosotros</a>
+            </nav>
+            
+            <!-- Right Actions -->
+            <div class="flex items-center space-x-3 md:space-x-5">
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="w-10 h-10 flex items-center justify-center hover:opacity-70 transition-opacity">
+                    <i id="theme-icon" class="fa-solid fa-sun text-lg"></i>
+                </button>
+                
+                <!-- Search Button (Square Outline) -->
+                <button onclick="openSearch()" class="w-10 h-10 border border-gray-900 dark:border-white flex items-center justify-center hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                
+                <!-- Cart Button -->
+                <button onclick="openCartDrawer()" class="w-10 h-10 flex items-center justify-center relative hover:opacity-70 transition-opacity">
+                    <i class="fa-solid fa-bag-shopping text-xl"></i>
+                    <span id="cart-badge" class="absolute top-1 right-0 bg-red-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Overlay -->
+    <div id="search-modal" class="fixed inset-0 z-[60] hidden bg-white/95 dark:bg-black/95 backdrop-blur-lg opacity-0 transition-opacity duration-300 flex flex-col justify-center items-center px-6">
+        <button onclick="closeSearch()" class="absolute top-8 right-8 text-3xl hover:opacity-70 transition-opacity">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="w-full max-w-2xl relative">
+            <input type="text" id="search-input" oninput="handleSearch()" placeholder="BUSCAR PRODUCTOS..." class="w-full bg-transparent border-b-2 border-gray-900 dark:border-white text-2xl md:text-4xl font-heading font-light uppercase tracking-wider py-4 focus:outline-none placeholder-gray-400 dark:placeholder-gray-600">
+            <i class="fa-solid fa-magnifying-glass absolute right-4 top-6 text-2xl text-gray-400"></i>
+        </div>
+        <div id="search-results" class="w-full max-w-2xl mt-8 max-h-[50vh] overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Search Results JS -->
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow pt-20">
+        
+        <!-- PÁGINA: INICIO -->
+        <div id="page-home" class="page-section block">
+            <!-- Hero Section (Carousel) -->
+            <section class="relative w-full h-[600px] md:h-[700px] bg-brand-900 overflow-hidden text-white flex items-center">
+                
+                <!-- Slides Container -->
+                <div id="hero-carousel" class="absolute inset-0">
+                    <!-- Slide 1 -->
+                    <div class="carousel-slide active bg-brand-900">
+                        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1585336261022-680e295ce3fe?q=80&w=2000')] bg-cover bg-center opacity-30 mix-blend-overlay"></div>
+                        <div class="max-w-[1400px] mx-auto px-6 h-full flex flex-col md:flex-row items-center relative z-20">
+                            <div class="w-full md:w-1/2 pt-20 md:pt-0">
+                                <h2 class="font-heading font-bold text-5xl md:text-7xl uppercase leading-none mb-4">EQUIPA TU<br>NEGOCIO.</h2>
+                                <p class="font-heading tracking-widest text-sm md:text-base mb-2 uppercase text-gray-300">CALIDAD PREMIUM</p>
+                                <p class="text-gray-400 mb-10 max-w-md font-light">Encuentra todo lo que necesitas para tu papelería con precios de distribuidor y calidad insuperable.</p>
+                                <button onclick="switchPage('catalogo')" class="btn-outline px-8 py-4 font-heading font-semibold text-sm">Comprar Ahora</button>
+                            </div>
+                            <div class="w-full md:w-1/2 flex justify-center mt-10 md:mt-0">
+                                <img src="https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=600&q=80" alt="Esferos" class="w-2/3 md:w-3/4 object-cover shadow-2xl rounded-sm grayscale hover:grayscale-0 transition-all duration-700 border border-gray-800">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2 -->
+                    <div class="carousel-slide bg-brand-900">
+                        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1531346878377-a541e4b115fc?q=80&w=2000')] bg-cover bg-center opacity-30 mix-blend-overlay"></div>
+                        <div class="max-w-[1400px] mx-auto px-6 h-full flex flex-col md:flex-row items-center relative z-20">
+                            <div class="w-full md:w-1/2 pt-20 md:pt-0">
+                                <h2 class="font-heading font-bold text-5xl md:text-7xl uppercase leading-none mb-4">ESCRITURA<br>TÉCNICA.</h2>
+                                <p class="font-heading tracking-widest text-sm md:text-base mb-2 uppercase text-gray-300">PRECISIÓN ABSOLUTA</p>
+                                <p class="text-gray-400 mb-10 max-w-md font-light">Materiales especializados para arquitectura, dibujo y diseño profesional.</p>
+                                <button onclick="switchPage('catalogo')" class="btn-outline px-8 py-4 font-heading font-semibold text-sm">Ver Catálogo</button>
+                            </div>
+                            <div class="w-full md:w-1/2 flex justify-center mt-10 md:mt-0">
+                                <img src="https://images.unsplash.com/photo-1531346878377-a541e4b115fc?w=600&q=80" alt="Cuadernos" class="w-2/3 md:w-3/4 object-cover shadow-2xl rounded-sm grayscale hover:grayscale-0 transition-all duration-700 border border-gray-800">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Carousel Controls -->
+                <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-30 flex space-x-3">
+                    <button class="carousel-dot w-2 h-2 rounded-full bg-white transition-opacity opacity-100"></button>
+                    <button class="carousel-dot w-2 h-2 rounded-full bg-white transition-opacity opacity-40"></button>
+                </div>
+            </section>
+        </div>
+
+        <!-- PÁGINA: PROMOS -->
+        <div id="page-promos" class="page-section hidden">
+            <!-- Promociones Section -->
+            <section id="promociones" class="py-20 min-h-[80vh] bg-white dark:bg-brand-950 border-b border-gray-200 dark:border-gray-900">
+                <div class="max-w-[1400px] mx-auto px-6">
+                    <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b-2 border-gray-900 dark:border-white pb-4">
+                        <div>
+                            <h2 class="font-heading font-bold text-3xl md:text-4xl uppercase tracking-wider">Promociones</h2>
+                            <p class="text-gray-500 dark:text-gray-400 mt-2 font-light">Ofertas exclusivas de temporada.</p>
+                        </div>
+                    </div>
+                    
+                    <div id="promo-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <!-- JS Injected Promos -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- PÁGINA: CATÁLOGO -->
+        <div id="page-catalogo" class="page-section hidden">
+            <!-- Catálogo Principal con Barra Horizontal Desplazable de Secciones -->
+            <section id="catalogo" class="py-20 min-h-[80vh] bg-brand-50 dark:bg-brand-900">
+                <div class="max-w-[1400px] mx-auto px-6">
+                
+                <!-- AGREGADO: Elementos de Título y Descripción necesarios para el JS -->
+                <div class="mb-8 border-b-2 border-gray-900 dark:border-white pb-4 inline-block">
+                    <h2 id="catalog-title" class="font-heading font-bold text-3xl md:text-4xl uppercase tracking-wider text-gray-900 dark:text-white">Catálogo General</h2>
+                    <p id="catalog-desc" class="text-gray-500 dark:text-gray-400 mt-2 font-light">Explora nuestra colección completa seleccionando una sección.</p>
+                </div>
+
+                <div class="relative mb-10 overflow-hidden">
+                    <div id="category-bar" class="category-scroll-container flex space-x-3 overflow-x-auto whitespace-nowrap py-3 cursor-grab active:cursor-grabbing border-b border-gray-200 dark:border-gray-800">
+                        <button onclick="filterCategory('Todo')" class="cat-btn active bg-gray-900 text-white dark:bg-white dark:text-black px-5 py-2 font-heading text-xs font-semibold uppercase tracking-wider rounded-none border border-gray-900 dark:border-white transition-all shrink-0">
+                            Todo
+                        </button>
+                        <button onclick="filterCategory('Útiles Escolares')" class="cat-btn text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white px-5 py-2 font-heading text-xs font-semibold uppercase tracking-wider rounded-none border border-transparent hover:border-gray-400 transition-all shrink-0">
+                            Útiles Escolares
+                        </button>
+                        <button onclick="filterCategory('Oficina y Comercial')" class="cat-btn text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white px-5 py-2 font-heading text-xs font-semibold uppercase tracking-wider rounded-none border border-transparent hover:border-gray-400 transition-all shrink-0">
+                            Oficina y Comercial
+                        </button>
+                        <button onclick="filterCategory('Arte y Manualidades')" class="cat-btn text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white px-5 py-2 font-heading text-xs font-semibold uppercase tracking-wider rounded-none border border-transparent hover:border-gray-400 transition-all shrink-0">
+                            Arte y Manualidades
+                        </button>
+                        <button onclick="filterCategory('Escritura Técnica')" class="cat-btn text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white px-5 py-2 font-heading text-xs font-semibold uppercase tracking-wider rounded-none border border-transparent hover:border-gray-400 transition-all shrink-0">
+                            Escritura Técnica
+                        </button>
+                        <button onclick="filterCategory('Servicios e Impresión')" class="cat-btn text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white px-5 py-2 font-heading text-xs font-semibold uppercase tracking-wider rounded-none border border-transparent hover:border-gray-400 transition-all shrink-0">
+                            Servicios e Impresión
+                        </button>
+                        <button onclick="filterCategory('Regalos y Expresión')" class="cat-btn text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white px-5 py-2 font-heading text-xs font-semibold uppercase tracking-wider rounded-none border border-transparent hover:border-gray-400 transition-all shrink-0">
+                            Regalos y Expresión
+                        </button>
+                        <button onclick="filterCategory('Tecnología y Accesorios')" class="cat-btn text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white px-5 py-2 font-heading text-xs font-semibold uppercase tracking-wider rounded-none border border-transparent hover:border-gray-400 transition-all shrink-0">
+                            Tecnología y Accesorios
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Subcategorías Informativas de la Sección Activa -->
+                <div id="subcategory-info" class="mb-8 p-4 bg-white/50 dark:bg-black/40 border border-gray-200 dark:border-gray-800 text-xs font-light text-gray-600 dark:text-gray-400 hidden">
+                    <!-- Dynamic Subcategory Tags -->
+                </div>
+
+                <!-- Grid de Productos -->
+                <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8">
+                    <!-- JS Injected Products -->
+                </div>
+            </div>
+        </section>
+        </div>
+
+        <!-- PÁGINA: NOSOTROS -->
+        <div id="page-nosotros" class="page-section hidden">
+            <!-- Quiénes Somos Section -->
+            <section id="nosotros" class="py-20 md:py-28 bg-white dark:bg-brand-950 relative overflow-hidden">
+                <div class="absolute inset-0 opacity-5 dark:opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+                <div class="max-w-[1400px] mx-auto px-6 relative z-10">
+                    
+                    <!-- Encabezado de Sección Elegante -->
+                    <div class="text-center max-w-3xl mx-auto mb-16 md:mb-20">
+                        <span class="font-heading text-xs md:text-sm tracking-widest-xl uppercase text-gray-500 dark:text-gray-400 block mb-3">Quiénes Somos</span>
+                        <h2 class="font-heading font-extrabold text-4xl md:text-6xl uppercase tracking-wider text-gray-900 dark:text-white border-b-2 border-gray-900 dark:border-white inline-block pb-4">Nuestra Misión</h2>
+                        <p class="text-gray-600 dark:text-gray-400 font-light text-base md:text-lg mt-6 leading-relaxed">
+                            Impulsamos a emprendedores y negocios a dar el primer paso con el respaldo de un aliado comercial estratégico.
+                        </p>
+                    </div>
+
+                    <!-- 3 Tarjetas Minimalistas (Pilares) -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
+                        
+                        <!-- Pilar 1 -->
+                        <div class="bg-gray-50 dark:bg-brand-900 border border-gray-200 dark:border-gray-800 p-8 md:p-10 flex flex-col justify-between hover:border-gray-400 dark:hover:border-gray-600 transition-all duration-300">
+                            <div>
+                                <div class="w-12 h-12 border border-gray-900 dark:border-white flex items-center justify-center font-heading font-bold text-lg mb-8 text-gray-900 dark:text-white">
+                                    01
+                                </div>
+                                <h3 class="font-heading font-bold text-xl md:text-2xl uppercase tracking-wider mb-4 text-gray-900 dark:text-white">Inversión Accesible</h3>
+                                <p class="text-gray-600 dark:text-gray-400 font-light text-sm md:text-base leading-relaxed">
+                                    Nuestra inspiración nació de una meta muy clara: impulsar a todas las personas que sueñan con abrir su propio negocio de papelería, pero que necesitan hacerlo con una inversión accesible y a bajo costo sin sacrificar calidad.
+                                </p>
+                            </div>
+                            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800 font-heading text-xs tracking-widest uppercase text-gray-500">
+                                Abastecimiento Directo
+                            </div>
+                        </div>
+
+                        <!-- Pilar 2 -->
+                        <div class="bg-gray-50 dark:bg-brand-900 border border-gray-200 dark:border-gray-800 p-8 md:p-10 flex flex-col justify-between hover:border-gray-400 dark:hover:border-gray-600 transition-all duration-300">
+                            <div>
+                                <div class="w-12 h-12 border border-gray-900 dark:border-white flex items-center justify-center font-heading font-bold text-lg mb-8 text-gray-900 dark:text-white">
+                                    02
+                                </div>
+                                <h3 class="font-heading font-bold text-xl md:text-2xl uppercase tracking-wider mb-4 text-gray-900 dark:text-white">Proveedor de Confianza</h3>
+                                <p class="text-gray-600 dark:text-gray-400 font-light text-sm md:text-base leading-relaxed">
+                                    Sabemos lo difícil que es dar el primer paso en el emprendimiento y lo importante que es encontrar un proveedor confiable que te ofrezca precios competitivos para garantizar tu margen de ganancia real desde el primer día.
+                                </p>
+                            </div>
+                            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800 font-heading text-xs tracking-widest uppercase text-gray-500">
+                                Precios de Mayorista
+                            </div>
+                        </div>
+
+                        <!-- Pilar 3 -->
+                        <div class="bg-gray-50 dark:bg-brand-900 border border-gray-200 dark:border-gray-800 p-8 md:p-10 flex flex-col justify-between hover:border-gray-400 dark:hover:border-gray-600 transition-all duration-300">
+                            <div>
+                                <div class="w-12 h-12 border border-gray-900 dark:border-white flex items-center justify-center font-heading font-bold text-lg mb-8 text-gray-900 dark:text-white">
+                                    03
+                                </div>
+                                <h3 class="font-heading font-bold text-xl md:text-2xl uppercase tracking-wider mb-4 text-gray-900 dark:text-white">Crecimiento Conjunto</h3>
+                                <p class="text-gray-600 dark:text-gray-400 font-light text-sm md:text-base leading-relaxed">
+                                    No solo vendemos productos; nos convertimos en tu socio comercial. Queremos que nos veas como tu fuente directa para surtir tu local al por mayor y menor. Tu éxito es nuestro motor y crecemos juntos en este camino.
+                                </p>
+                            </div>
+                            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800 font-heading text-xs tracking-widest uppercase text-gray-500">
+                                Alianza Estratégica
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+        <!-- Newsletter Section -->
+        <section class="py-20 bg-gray-100 dark:bg-[#0a0a0a] border-t border-gray-200 dark:border-gray-900">
+            <div class="max-w-xl mx-auto px-6 text-center">
+                <h3 class="font-heading font-bold text-2xl uppercase tracking-wider mb-4">Únete a la lista</h3>
+                <p class="text-gray-500 dark:text-gray-400 font-light mb-8">Recibe ofertas exclusivas, novedades y descuentos para mayoristas directamente en tu bandeja de entrada.</p>
+                <form class="flex flex-col sm:flex-row gap-4" onsubmit="event.preventDefault(); alert('¡Gracias por suscribirte!');">
+                    <input type="email" placeholder="TU CORREO ELECTRÓNICO" required class="flex-grow bg-white dark:bg-black border border-gray-300 dark:border-gray-700 px-4 py-3 focus:outline-none focus:border-gray-900 dark:focus:border-white transition-colors font-heading text-sm uppercase tracking-wider">
+                    <button type="submit" class="btn-outline px-8 py-3 font-heading font-semibold text-sm whitespace-nowrap bg-gray-900 text-white dark:bg-white dark:text-black">Suscribirse</button>
+                </form>
+            </div>
+        </section>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-black py-12 border-t border-gray-200 dark:border-gray-900 text-center">
+        <p class="font-heading text-xs tracking-widest uppercase text-gray-500">© 2026 Papelería Guayaca. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[70] flex flex-col gap-3"></div>
+
+    <!-- Product Details Modal -->
+    <div id="product-modal" class="fixed inset-0 z-50 hidden bg-white/90 dark:bg-black/90 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-brand-950 w-full max-w-4xl shadow-2xl border border-gray-200 dark:border-gray-800 flex flex-col md:flex-row transform scale-95 transition-transform duration-300 relative" id="modal-container">
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 z-20 w-10 h-10 border border-gray-900 dark:border-white flex items-center justify-center hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- Image Side -->
+            <div class="w-full md:w-1/2 bg-gray-100 dark:bg-black p-8 flex items-center justify-center border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-800">
+                <img id="modal-img" src="" alt="Producto" class="max-w-full max-h-[400px] object-cover mix-blend-multiply dark:mix-blend-normal">
+            </div>
+
+            <!-- Details Side -->
+            <div class="w-full md:w-1/2 p-8 flex flex-col justify-center">
+                <h3 id="modal-name" class="font-heading font-bold text-3xl uppercase tracking-wider mb-4">Producto</h3>
+                <p id="modal-desc" class="text-gray-600 dark:text-gray-400 font-light mb-8">Descripción.</p>
+                
+                <div class="flex gap-6 mb-8 border-y border-gray-200 dark:border-gray-800 py-6">
+                    <div>
+                        <p class="font-heading text-xs tracking-widest uppercase text-gray-500 mb-2">Unidad (1-4)</p>
+                        <p id="modal-price" class="text-2xl font-light">$0.00</p>
+                    </div>
+                    <div class="border-l border-gray-200 dark:border-gray-800 pl-6">
+                        <p class="font-heading text-xs tracking-widest uppercase text-brand-600 dark:text-gray-300 mb-2">Mayorista (5+)</p>
+                        <p id="modal-wholesale" class="text-2xl font-bold">$0.00</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="flex items-center border border-gray-900 dark:border-white">
+                        <button type="button" onclick="updateModalQuantity(-1)" class="w-12 h-12 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"><i class="fa-solid fa-minus text-xs"></i></button>
+                        <input type="number" id="modal-qty" value="1" min="1" oninput="calculateModalTotal()" class="w-16 h-12 bg-transparent text-center font-bold focus:outline-none border-x border-gray-900 dark:border-white">
+                        <button type="button" onclick="updateModalQuantity(1)" class="w-12 h-12 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"><i class="fa-solid fa-plus text-xs"></i></button>
+                    </div>
+                    <div class="flex-grow text-right relative">
+                        <p class="font-heading text-[10px] tracking-widest uppercase text-gray-500">Total a cancelar</p>
+                        <p id="modal-total" class="text-3xl font-bold">$0.00</p>
+                        <p id="modal-wholesale-indicator" class="hidden font-heading text-[9px] tracking-widest uppercase text-green-600 dark:text-green-400 absolute right-0 -bottom-4">Precio Mayorista Aplicado</p>
+                    </div>
+                </div>
+
+                <!-- Modificado: Añadir al carrito sin cerrar para AJAX UX -->
+                <button type="button" onclick="addToCartFromModal()" class="w-full py-4 border border-gray-900 dark:border-white bg-gray-900 text-white dark:bg-white dark:text-black hover:bg-black dark:hover:bg-gray-200 font-heading font-bold uppercase tracking-widest text-sm transition-colors">
+                    Añadir al Carrito
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Drawer -->
+    <div id="cart-drawer" class="fixed inset-0 z-50 hidden bg-white/50 dark:bg-black/80 backdrop-blur-sm flex justify-end opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-brand-950 w-full max-w-md h-full border-l border-gray-200 dark:border-gray-800 flex flex-col transform translate-x-full transition-transform duration-300" id="cart-container">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-brand-900">
+                <h3 class="font-heading font-bold text-lg uppercase tracking-widest">Tu Bolsa</h3>
+                <button onclick="closeCartDrawer()" class="w-10 h-10 border border-gray-900 dark:border-white flex items-center justify-center hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 space-y-6">
+                <!-- Cart Items injected via JS -->
+            </div>
+
+            <div class="p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-brand-900">
+                <div class="flex justify-between items-end mb-6">
+                    <span class="font-heading text-xs tracking-widest uppercase text-gray-500">Subtotal</span>
+                    <span id="cart-grand-total" class="text-3xl font-bold">$0.00</span>
+                </div>
+                <button onclick="openCheckoutModal()" id="checkout-btn" class="w-full py-4 border border-gray-900 dark:border-white bg-gray-900 text-white dark:bg-white dark:text-black hover:bg-black dark:hover:bg-gray-200 font-heading font-bold uppercase tracking-widest text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Proceder al Pago
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 hidden bg-white/90 dark:bg-black/90 backdrop-blur-md flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white dark:bg-brand-950 w-full max-w-xl border border-gray-200 dark:border-gray-800 p-8 md:p-12 transform scale-95 transition-transform duration-300 relative max-h-[90vh] overflow-y-auto" id="checkout-container">
+            <button onclick="closeCheckoutModal()" class="absolute top-6 right-6 z-20 w-12 h-12 border border-gray-900 dark:border-white flex items-center justify-center hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+                <i class="fa-solid fa-arrow-left text-lg"></i>
+            </button>
+
+            <h3 class="font-heading font-bold text-3xl md:text-4xl uppercase tracking-wider mb-2 text-gray-900 dark:text-white">Envío y Pago</h3>
+            <p class="font-heading text-sm tracking-widest uppercase text-gray-500 dark:text-gray-400 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4">Modalidad: Pago Contraentrega</p>
+
+            <form onsubmit="confirmOrder(event)" class="space-y-8">
+                <div>
+                    <label class="block font-heading text-xs md:text-sm tracking-widest uppercase font-bold text-gray-800 dark:text-gray-200 mb-3">Nombre Completo *</label>
+                    <input type="text" id="cus-name" placeholder="Ej. Juan Pérez" required class="w-full bg-transparent border-b-2 border-gray-400 dark:border-gray-600 py-3 text-lg md:text-xl font-medium focus:outline-none focus:border-gray-900 dark:focus:border-white transition-colors text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600">
+                </div>
+                <div>
+                    <label class="block font-heading text-xs md:text-sm tracking-widest uppercase font-bold text-gray-800 dark:text-gray-200 mb-3">Dirección Exacta (con referencias) *</label>
+                    <input type="text" id="cus-address" placeholder="Ej. Av. 9 de Octubre y Chile, Piso 2" required class="w-full bg-transparent border-b-2 border-gray-400 dark:border-gray-600 py-3 text-lg md:text-xl font-medium focus:outline-none focus:border-gray-900 dark:focus:border-white transition-colors text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600">
+                </div>
+                <div>
+                    <label class="block font-heading text-xs md:text-sm tracking-widest uppercase font-bold text-gray-800 dark:text-gray-200 mb-3">Teléfono / Celular *</label>
+                    <input type="tel" id="cus-phone" placeholder="Ej. 0987654321" required class="w-full bg-transparent border-b-2 border-gray-400 dark:border-gray-600 py-3 text-lg md:text-xl font-medium focus:outline-none focus:border-gray-900 dark:focus:border-white transition-colors text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600">
+                </div>
+
+                <button type="submit" class="w-full mt-10 py-5 border-2 border-gray-900 dark:border-white bg-gray-900 text-white dark:bg-white dark:text-black hover:bg-black dark:hover:bg-gray-200 font-heading font-extrabold uppercase tracking-widest text-base md:text-lg transition-colors shadow-lg">
+                    Confirmar Pedido
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 z-50 hidden bg-white/95 dark:bg-black/95 backdrop-blur-lg flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-transparent w-full max-w-md text-center transform scale-95 transition-transform duration-300 relative" id="success-container">
+            <h3 class="font-heading font-bold text-3xl uppercase tracking-wider mb-2">Orden Generada</h3>
+            <p class="font-light text-gray-500 dark:text-gray-400 mb-8">Gracias por confiar en Papelería Guayaca.</p>
+            
+            <div class="py-6 border-y border-gray-300 dark:border-gray-700 mb-8">
+                <span class="font-heading text-[10px] tracking-widest uppercase text-gray-500 block mb-2">Código de Pedido</span>
+                <span id="order-code-display" class="font-heading text-4xl font-bold tracking-widest">WG-0000</span>
+            </div>
+
+            <p class="font-heading text-xs tracking-widest uppercase text-gray-500 mb-6">Envía tu comprobante para procesar la orden:</p>
+
+            <div class="space-y-4">
+                <button onclick="sendViaWhatsApp()" class="w-full py-4 border border-gray-900 dark:border-white hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-black font-heading font-bold uppercase tracking-widest text-sm transition-colors flex justify-center items-center gap-3">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> Vía WhatsApp
+                </button>
+                <button onclick="sendViaEmail()" class="w-full py-4 border border-gray-900 dark:border-white hover:bg-gray-900 hover:text-white dark:hover:bg-white dark:hover:text-black font-heading font-bold uppercase tracking-widest text-sm transition-colors flex justify-center items-center gap-3">
+                    <i class="fa-regular fa-envelope text-lg"></i> Vía Correo
+                </button>
+            </div>
+            
+            <button onclick="resetAndCloseAll()" class="mt-8 font-heading text-xs tracking-widest uppercase text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors underline underline-offset-4">
+                Volver al inicio
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- CONSTANTS & DATA ---
+        const emailTienda = "abigailguallip@gmail.com";
+        const telefonoWhatsApp = "593981049707";
+        
+        const subcategoriasMap = {
+            'Útiles Escolares': 'Cuadernos (pautados, universitarios, cosidos) • Lápices, esferos, borradores, tajadores y correctores • Juegos geométricos, reglas y tijeras • Cartucheras, mochilas y loncheras',
+            'Oficina y Comercial': 'Resmas de papel (A4, carta, oficio) • Carpetas y archivadores • Cosedoras, perforadoras, clips • Notas adhesivas, resaltadores, sellos y talonarios',
+            'Arte y Manualidades': 'Cartulinas y fómix (llano, escarchado) • Pinturas (témperas, acrílicos, acuarelas) y pinceles • Pegamentos y cintas adhesivas • Limpiapipas, plumas y cintas decorativas',
+            'Escritura Técnica': 'Calculadoras (básicas, financieras, científicas) • Compases de precisión, escalímetros y regla T • Papel mantequilla, vegetal y calco • Estilógrafos y marcadores',
+            'Servicios e Impresión': 'Fotocopias e impresiones (B/N y color) • Anillado, espiralado y empastado • Plastificado de carnets y hojas • Digitalización y escaneo',
+            'Regalos y Expresión': 'Papel de regalo, fundas decorativas y cajas • Tarjetas de felicitación • Lazos, cintas de regalo, papel seda y crepé',
+            'Tecnología y Accesorios': 'Memorias USB y tarjetas SD • Mouses, teclados y audífonos • Cables de carga (USB-C, Lightning) y adaptadores'
+        };
+
+        const productos = [
+            // PROMOS (30% y 60% off visual badges)
+            { id: 1, name: "Set Cuadernos Premium", category: "Útiles Escolares", desc: "Paquete de 3 cuadernos de cuero sintético, hojas de 120g.", price: 15.00, wholesale: 10.50, img: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&q=80", isPromo: true, discount: "30%" },
+            { id: 2, name: "Pluma Estilográfica Pro", category: "Escritura Técnica", desc: "Pluma fuente de aluminio cepillado con plumín de acero.", price: 25.00, wholesale: 10.00, img: "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600&q=80", isPromo: true, discount: "60%" },
+            { id: 3, name: "Regla Metálica 30cm", category: "Útiles Escolares", desc: "Regla de acero inoxidable para corte de precisión.", price: 5.00, wholesale: 3.50, img: "https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=600&q=80", isPromo: true, discount: "30%" },
+            { id: 4, name: "Mochila Minimalista", category: "Útiles Escolares", desc: "Mochila lona negra resistente al agua, compartimento para laptop.", price: 40.00, wholesale: 16.00, img: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80", isPromo: true, discount: "60%" },
+            { id: 5, name: "Resma Papel Ecológico", category: "Oficina y Comercial", desc: "500 hojas A4 papel reciclado de alta blancura.", price: 6.00, wholesale: 4.20, img: "https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=600&q=80", isPromo: true, discount: "30%" },
+            { id: 6, name: "Archivador Ejecutivo", category: "Oficina y Comercial", desc: "Archivador negro mate con herrajes reforzados.", price: 8.00, wholesale: 5.60, img: "https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&q=80", isPromo: true, discount: "30%" },
+            { id: 7, name: "Set Notas Adhesivas Dark", category: "Oficina y Comercial", desc: "Blocs de notas en tonos grises y negros para tinta blanca o metálica.", price: 4.00, wholesale: 1.60, img: "https://images.unsplash.com/photo-1517842645767-c639042777db?w=600&q=80", isPromo: true, discount: "60%" },
+            { id: 8, name: "Pinturas Acrílicas Estudio", category: "Arte y Manualidades", desc: "Set de 12 tubos de 20ml calidad profesional.", price: 18.00, wholesale: 12.60, img: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&q=80", isPromo: true, discount: "30%" },
+            
+            // STANDARD CATALOG
+            { id: 9, name: "Cartulinas Negras (50 un.)", category: "Arte y Manualidades", desc: "Cartulinas tamaño A4 color negro profundo de 180g.", price: 5.50, wholesale: 4.50, img: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600&q=80", isPromo: false },
+            { id: 10, name: "Pegamento Extra Fuerte", category: "Arte y Manualidades", desc: "Adhesivo multiuso industrial 100ml.", price: 3.50, wholesale: 2.80, img: "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=600&q=80", isPromo: false },
+            { id: 11, name: "Calculadora Financiera", category: "Escritura Técnica", desc: "Acabado aluminio cepillado, pantalla de alto contraste.", price: 28.00, wholesale: 24.00, img: "https://images.unsplash.com/photo-1587145820266-a5951ee6f620?w=600&q=80", isPromo: false },
+            { id: 12, name: "Compás de Precisión Pro", category: "Escritura Técnica", desc: "Aleación de zinc, ajuste micrométrico.", price: 15.00, wholesale: 12.00, img: "https://images.unsplash.com/photo-1580569214296-5cf2bffc5ced?w=600&q=80", isPromo: false },
+            { id: 13, name: "Servicio de Impresión A4 Color", category: "Servicios e Impresión", desc: "Impresión y fotocopia de alta resolución.", price: 0.25, wholesale: 0.15, img: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=600&q=80", isPromo: false },
+            { id: 14, name: "Caja de Regalo Elegance", category: "Regalos y Expresión", desc: "Caja rígida negra mate con cierre magnético.", price: 6.50, wholesale: 5.00, img: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=600&q=80", isPromo: false },
+            { id: 15, name: "USB 64GB Armor", category: "Tecnología y Accesorios", desc: "Memoria USB de metal reforzado resistente a impactos.", price: 14.00, wholesale: 11.50, img: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=600&q=80", isPromo: false },
+            { id: 16, name: "Cable Tipo-C Kevlar", category: "Tecnología y Accesorios", desc: "Cable mallado ultra resistente 1.5m negro.", price: 8.00, wholesale: 6.00, img: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=600&q=80", isPromo: false }
+        ];
+
+        let selectedProduct = null;
+        let cart = [];
+        let currentOrder = null;
+        let currentCategory = 'Todo';
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            initCarousel();
+            initDragScroll();
+            renderGrids();
+            updateCartBadge();
+        });
+
+        // --- THEME MANAGEMENT ---
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+
+        function initTheme() {
+            if (localStorage.getItem('theme') === 'light') {
+                document.documentElement.classList.remove('dark');
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+            } else {
+                document.documentElement.classList.add('dark');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+            }
+        }
+
+        // Fix: Se añadió el evento de click que activa el cambio
+        themeToggleBtn.addEventListener('click', () => {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+            }
+        });
+
+        // --- PAGE NAVIGATION (SPA Logic) ---
+        function switchPage(pageId) {
+            // Ocultar todas las páginas
+            document.querySelectorAll('.page-section').forEach(sec => {
+                sec.classList.add('hidden');
+                sec.classList.remove('block');
+            });
+            // Mostrar solo la página solicitada
+            const activePage = document.getElementById('page-' + pageId);
+            if(activePage) {
+                activePage.classList.remove('hidden');
+                activePage.classList.add('block');
+            }
+            // Subir el scroll hasta arriba suavemente
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+
+        // --- DRAG SCROLL FOR CATEGORIES ---
+        function initDragScroll() {
+            const slider = document.getElementById('category-bar');
+            if (!slider) return;
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+
+            slider.addEventListener('mousedown', (e) => {
+                isDown = true;
+                slider.classList.add('cursor-grabbing');
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+            });
+            slider.addEventListener('mouseleave', () => {
+                isDown = false;
+                slider.classList.remove('cursor-grabbing');
+            });
+            slider.addEventListener('mouseup', () => {
+                isDown = false;
+                slider.classList.remove('cursor-grabbing');
+            });
+            slider.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - slider.offsetLeft;
+                const walk = (x - startX) * 2;
+                slider.scrollLeft = scrollLeft - walk;
+            });
+        }
+
+        // --- CATEGORY FILTERING ---
+        function filterCategory(cat) {
+            currentCategory = cat;
+            const buttons = document.querySelectorAll('.cat-btn');
+            
+            buttons.forEach(btn => {
+                const text = btn.innerText.trim();
+                if (text === cat) {
+                    btn.className = "cat-btn active bg-gray-900 text-white dark:bg-white dark:text-black px-5 py-2 font-heading text-xs font-semibold uppercase tracking-wider rounded-none border border-gray-900 dark:border-white transition-all shrink-0";
+                } else {
+                    btn.className = "cat-btn text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white px-5 py-2 font-heading text-xs font-semibold uppercase tracking-wider rounded-none border border-transparent hover:border-gray-400 transition-all shrink-0";
+                }
+            });
+
+            const titleEl = document.getElementById('catalog-title');
+            const descEl = document.getElementById('catalog-desc');
+            const subInfo = document.getElementById('subcategory-info');
+
+            if (cat === 'Todo') {
+                titleEl.innerText = "Catálogo General";
+                descEl.innerText = "Explora nuestra colección completa seleccionando una sección.";
+                subInfo.classList.add('hidden');
+            } else {
+                titleEl.innerText = cat;
+                descEl.innerText = `Mostrando los productos de la categoría ${cat}.`;
+                if (subcategoriasMap[cat]) {
+                    subInfo.innerHTML = `<span class="font-bold font-heading uppercase text-gray-900 dark:text-white mr-2">Incluye:</span> ${subcategoriasMap[cat]}`;
+                    subInfo.classList.remove('hidden');
+                } else {
+                    subInfo.classList.add('hidden');
+                }
+            }
+
+            renderGrids();
+        }
+
+        // --- HERO CAROUSEL ---
+        function initCarousel() {
+            const slides = document.querySelectorAll('.carousel-slide');
+            const dots = document.querySelectorAll('.carousel-dot');
+            let current = 0;
+
+            setInterval(() => {
+                slides[current].classList.remove('active');
+                dots[current].classList.replace('opacity-100', 'opacity-40');
+                
+                current = (current + 1) % slides.length;
+                
+                slides[current].classList.add('active');
+                dots[current].classList.replace('opacity-40', 'opacity-100');
+            }, 5000);
+        }
+
+        // --- RENDER PRODUCTS ---
+        function generateProductCardHTML(p) {
+            const badgeHTML = p.isPromo ? `<div class="absolute top-4 left-4 bg-white text-black font-heading font-bold text-xs px-2 py-1 uppercase z-10 shadow-sm">-${p.discount}</div>` : '';
+            return `
+                <div class="group cursor-pointer relative bg-white dark:bg-brand-950 border border-gray-200 dark:border-gray-800 transition-all hover:shadow-2xl overflow-hidden flex flex-col h-full" onclick="openProductModal(${p.id})">
+                    ${badgeHTML}
+                    <div class="relative w-full pt-[120%] overflow-hidden bg-gray-100 dark:bg-black">
+                        <img src="${p.img}" alt="${p.name}" loading="lazy" class="absolute inset-0 w-full h-full object-cover mix-blend-multiply dark:mix-blend-normal group-hover:scale-105 transition-transform duration-700 grayscale group-hover:grayscale-0">
+                    </div>
+                    <div class="p-5 flex-grow flex flex-col justify-between">
+                        <h3 class="font-heading font-semibold uppercase tracking-wider text-sm mb-2 text-gray-900 dark:text-white line-clamp-2">${p.name}</h3>
+                        <p class="font-light text-lg text-gray-900 dark:text-gray-300">$${p.price.toFixed(2)}</p>
+                    </div>
+                    <div class="absolute bottom-0 left-0 w-full h-1 bg-gray-900 dark:bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300"></div>
+                </div>
+            `;
+        }
+
+        function renderGrids() {
+            const promoGrid = document.getElementById('promo-grid');
+            const catGrid = document.getElementById('product-grid');
+            
+            const promos = productos.filter(p => p.isPromo);
+            let catalog = productos;
+
+            if (currentCategory !== 'Todo') {
+                catalog = productos.filter(p => p.category === currentCategory);
+            }
+
+            promoGrid.innerHTML = promos.map(generateProductCardHTML).join('');
+            
+            if (catalog.length === 0) {
+                catGrid.innerHTML = `<p class="col-span-full text-center font-heading text-xs tracking-widest uppercase text-gray-500 py-12">No hay productos cargados en esta sección.</p>`;
+            } else {
+                catGrid.innerHTML = catalog.map(generateProductCardHTML).join('');
+            }
+        }
+
+        // --- PRODUCT MODAL ---
+        const productModal = document.getElementById('product-modal');
+        const modalContainer = document.getElementById('modal-container');
+        const modalQtyInput = document.getElementById('modal-qty');
+
+        function openProductModal(id) {
+            selectedProduct = productos.find(p => p.id === id);
+            if(!selectedProduct) return;
+
+            document.getElementById('modal-img').src = selectedProduct.img;
+            document.getElementById('modal-name').innerText = selectedProduct.name;
+            document.getElementById('modal-desc').innerText = selectedProduct.desc;
+            document.getElementById('modal-price').innerText = `$${selectedProduct.price.toFixed(2)}`;
+            document.getElementById('modal-wholesale').innerText = `$${selectedProduct.wholesale.toFixed(2)}`;
+            
+            modalQtyInput.value = 1;
+            calculateModalTotal();
+
+            productModal.classList.remove('hidden');
+            setTimeout(() => {
+                productModal.classList.remove('opacity-0');
+                modalContainer.classList.remove('scale-95');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProductModal() {
+            productModal.classList.add('opacity-0');
+            modalContainer.classList.add('scale-95');
+            setTimeout(() => {
+                productModal.classList.add('hidden');
+                document.body.style.overflow = '';
+                selectedProduct = null;
+            }, 300);
+        }
+
+        function updateModalQuantity(delta) {
+            let val = parseInt(modalQtyInput.value) || 1;
+            val += delta;
+            if (val < 1) val = 1;
+            modalQtyInput.value = val;
+            calculateModalTotal();
+        }
+
+        function calculateModalTotal() {
+            if (!selectedProduct) return;
+            let qty = parseInt(modalQtyInput.value) || 1;
+            if (qty < 1) { qty = 1; modalQtyInput.value = 1; }
+
+            const isWholesale = qty >= 5;
+            const priceApplied = isWholesale ? selectedProduct.wholesale : selectedProduct.price;
+            document.getElementById('modal-total').innerText = `$${(priceApplied * qty).toFixed(2)}`;
+            
+            const indicator = document.getElementById('modal-wholesale-indicator');
+            if (indicator) {
+                if (isWholesale) {
+                    indicator.classList.remove('hidden');
+                } else {
+                    indicator.classList.add('hidden');
+                }
+            }
+        }
+
+        // --- AJAX CART & TOAST ---
+        function addToCartFromModal() {
+            if (!selectedProduct) return;
+            const qty = parseInt(modalQtyInput.value) || 1;
+            
+            const existingIndex = cart.findIndex(item => item.id === selectedProduct.id);
+            if (existingIndex > -1) {
+                cart[existingIndex].qty += qty;
+            } else {
+                cart.push({ ...selectedProduct, qty: qty });
+            }
+
+            updateCartBadge();
+            closeProductModal();
+            showToast(`Añadido al carrito: ${selectedProduct.name} (x${qty})`);
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = "bg-gray-900 text-white dark:bg-white dark:text-black px-6 py-4 border border-transparent shadow-2xl flex items-center gap-3 toast-enter font-heading text-sm tracking-wider uppercase";
+            toast.innerHTML = `<i class="fa-solid fa-check text-green-500 dark:text-green-600"></i> ${message}`;
+            
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.replace('toast-enter', 'toast-leave');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- CART DRAWER ---
+        const cartDrawer = document.getElementById('cart-drawer');
+        const cartContainer = document.getElementById('cart-container');
+
+        function openCartDrawer() {
+            renderCartItems();
+            cartDrawer.classList.remove('hidden');
+            setTimeout(() => {
+                cartDrawer.classList.remove('opacity-0');
+                cartContainer.classList.remove('translate-x-full');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCartDrawer() {
+            cartDrawer.classList.add('opacity-0');
+            cartContainer.classList.add('translate-x-full');
+            setTimeout(() => {
+                cartDrawer.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        function updateCartBadge() {
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cart-badge').innerText = totalItems;
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cart-items-container');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            container.innerHTML = '';
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-20 opacity-50">
+                        <i class="fa-solid fa-bag-shopping text-4xl mb-4"></i>
+                        <p class="font-heading text-xs tracking-widest uppercase">Tu bolsa está vacía.</p>
+                    </div>
+                `;
+                checkoutBtn.disabled = true;
+                document.getElementById('cart-grand-total').innerText = '$0.00';
+                return;
+            }
+
+            checkoutBtn.disabled = false;
+            let grandTotal = 0;
+
+            cart.forEach((item, index) => {
+                const isWholesale = item.qty >= 5;
+                const unitPrice = isWholesale ? item.wholesale : item.price;
+                const itemTotal = unitPrice * item.qty;
+                grandTotal += itemTotal;
+
+                const itemEl = document.createElement('div');
+                itemEl.className = "flex gap-4 border-b border-gray-200 dark:border-gray-800 pb-4 items-center";
+                itemEl.innerHTML = `
+                    <img src="${item.img}" alt="${item.name}" class="w-20 h-24 object-cover mix-blend-multiply dark:mix-blend-normal bg-gray-100 dark:bg-black shrink-0 grayscale">
+                    <div class="flex-grow">
+                        <h4 class="font-heading font-bold text-xs uppercase tracking-wider mb-1 line-clamp-1">${item.name}</h4>
+                        <p class="font-light text-xs text-gray-500 mb-2">${item.qty} un. x $${unitPrice.toFixed(2)} ${isWholesale ? '(MAY.)' : ''}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold">$${itemTotal.toFixed(2)}</span>
+                            <button onclick="removeFromCart(${index})" class="text-gray-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(itemEl);
+            });
+
+            document.getElementById('cart-grand-total').innerText = `$${grandTotal.toFixed(2)}`;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartBadge();
+            renderCartItems();
+        }
+
+        // --- CHECKOUT & ORDER ---
+        const checkoutModal = document.getElementById('checkout-modal');
+        const checkoutContainer = document.getElementById('checkout-container');
+        const successModal = document.getElementById('success-modal');
+        const successContainer = document.getElementById('success-container');
+
+        function openCheckoutModal() {
+            closeCartDrawer();
+            checkoutModal.classList.remove('hidden');
+            setTimeout(() => {
+                checkoutModal.classList.remove('opacity-0');
+                checkoutContainer.classList.remove('scale-95');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCheckoutModal() {
+            checkoutModal.classList.add('opacity-0');
+            checkoutContainer.classList.add('scale-95');
+            setTimeout(() => {
+                checkoutModal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        function confirmOrder(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('cus-name').value;
+            const address = document.getElementById('cus-address').value;
+            const phone = document.getElementById('cus-phone').value;
+            
+            const orderCode = 'WG-' + Math.floor(1000 + Math.random() * 9000);
+            
+            let grandTotal = 0;
+            const itemsSummary = cart.map(item => {
+                const isWholesale = item.qty >= 5;
+                const unitPrice = isWholesale ? item.wholesale : item.price;
+                const total = unitPrice * item.qty;
+                grandTotal += total;
+                return `- ${item.qty}x ${item.name} ($${unitPrice.toFixed(2)} c/u) = $${total.toFixed(2)}`;
+            }).join('\n');
+
+            currentOrder = {
+                code: orderCode, name, address, phone,
+                items: itemsSummary,
+                total: grandTotal.toFixed(2)
+            };
+
+            document.getElementById('order-code-display').innerText = orderCode;
+            closeCheckoutModal();
+
+            successModal.classList.remove('hidden');
+            setTimeout(() => {
+                successModal.classList.remove('opacity-0');
+                successContainer.classList.remove('scale-95');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function sendViaWhatsApp() {
+            if (!currentOrder) return;
+            const text = encodeURIComponent(
+                `▪️ ORDEN PAPELERÍA GUAYACA ▪️\n\n` +
+                `CÓDIGO: *${currentOrder.code}*\n` +
+                `PAGO: Contraentrega\n\n` +
+                `CLIENTE:\n` +
+                `${currentOrder.name}\n` +
+                `${currentOrder.address}\n` +
+                `${currentOrder.phone}\n\n` +
+                `PEDIDO:\n` +
+                `${currentOrder.items}\n\n` +
+                `TOTAL A CANCELAR: *$${currentOrder.total}*`
+            );
+            window.open(`https://wa.me/${telefonoWhatsApp}?text=${text}`, '_blank');
+        }
+
+        function sendViaEmail() {
+            if (!currentOrder) return;
+            const subject = encodeURIComponent(`Orden ${currentOrder.code} - ${currentOrder.name}`);
+            const body = encodeURIComponent(
+                `ORDEN PAPELERÍA GUAYACA\n\n` +
+                `CÓDIGO: ${currentOrder.code}\n` +
+                `PAGO: Contraentrega\n\n` +
+                `CLIENTE:\n` +
+                `Nombre: ${currentOrder.name}\n` +
+                `Dirección: ${currentOrder.address}\n` +
+                `Teléfono: ${currentOrder.phone}\n\n` +
+                `PEDIDO:\n` +
+                `${currentOrder.items}\n\n` +
+                `TOTAL A CANCELAR: $${currentOrder.total}`
+            );
+            window.location.href = `mailto:${emailTienda}?subject=${subject}&body=${body}`;
+        }
+
+        function resetAndCloseAll() {
+            successModal.classList.add('opacity-0');
+            successContainer.classList.add('scale-95');
+            setTimeout(() => {
+                successModal.classList.add('hidden');
+                document.body.style.overflow = '';
+                cart = [];
+                currentOrder = null;
+                updateCartBadge();
+                document.getElementById('cus-name').value = '';
+                document.getElementById('cus-address').value = '';
+                document.getElementById('cus-phone').value = '';
+            }, 300);
+        }
+
+        // --- SEARCH OVERLAY ---
+        const searchModal = document.getElementById('search-modal');
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+
+        function openSearch() {
+            searchModal.classList.remove('hidden');
+            setTimeout(() => searchModal.classList.remove('opacity-0'), 10);
+            searchInput.value = '';
+            searchResults.innerHTML = '';
+            searchInput.focus();
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSearch() {
+            searchModal.classList.add('opacity-0');
+            setTimeout(() => {
+                searchModal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        function handleSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            if (query.length < 2) {
+                searchResults.innerHTML = '';
+                return;
+            }
+
+            const results = productos.filter(p => p.name.toLowerCase().includes(query) || p.desc.toLowerCase().includes(query));
+            
+            if (results.length === 0) {
+                searchResults.innerHTML = `<p class="col-span-full text-center font-heading text-xs tracking-widest uppercase text-gray-500 mt-10">No se encontraron productos.</p>`;
+                return;
+            }
+
+            searchResults.innerHTML = results.map(p => `
+                <div class="flex items-center gap-4 border border-gray-200 dark:border-gray-800 p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors" onclick="closeSearch(); openProductModal(${p.id})">
+                    <img src="${p.img}" class="w-16 h-16 object-cover grayscale">
+                    <div>
+                        <h4 class="font-heading font-bold text-xs uppercase tracking-wider">${p.name}</h4>
+                        <p class="font-light text-sm">$${p.price.toFixed(2)}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
